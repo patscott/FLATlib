@@ -1,0 +1,40 @@
+Readme for FLATlib v0.5
+--------------------------
+
+FLATlib is a Fortran90 library for performing fast convolution of
+theoretical spectra with the instrumental response functions of the
+Fermi Large Area Telescope (LAT).  This release is probably the final beta
+version of the library, for use within and outside the Fermi collaboration.
+It contains P6_v1, P6_v3, P7_v1 and P7_V6 IRFs.  This version is minimally
+documented; later releases might contain more documentation.
+
+To use flatlib, copy the contents of the tarball to whatever directory
+you like, retaining the directory structure.  Make sure you have the cfitsio, 
+fftw3 and m libraries installed and accessible in your default libray paths.  
+Modify the makefile in the root directory to suit your compiler preferences.  
+Compile the library, utilities and test program by just typing 'make' in the 
+flatlib root directory.
+
+In general, the IRFs need to be averaged before any fast convolutions can be 
+done.  This can be done in advance using 
+./flataverage <IRF folder name>
+in the data directory.  If this has not been done already, it will be done 
+automatically anyway for the chosen IRFs when flatConvolve_fast_init is 
+called to set up the convolution.  The averaging may take a very long time
+to run, depending upon your computer speed and whether you modified any of
+the options in src/flatCommon.f90.
+
+Once these are done, you can run the test program by typing
+./flattest
+and checking that there are no errors in the output.  Refer to 
+src/flatTest.f90 for an example of how to call the library from your
+own programs.
+
+Note that the compiled library which you will need to link to is 
+lib/libflatlib.a; the other libraries in lib/ are just temporaries
+and are not required to be linked to by end users.
+
+Pat Scott  	July 7 2009
+Updated 	Feb 21 2011
+		Oct 20 2011
+		Apr 12 2012

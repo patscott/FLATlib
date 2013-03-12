@@ -1,0 +1,53 @@
+v0.7
+----------------------
+Public release
+ - Small bug fix in flatConvolve_fast.f90
+
+v0.6
+----------------------
+Public release
+ - Upgraded TENSBS, BSPLINE and FITPACK contributed packages
+   to double precision versions; all interpolation now 
+   enitrely double precision
+ - Added floating-point error corrector for ROI edge locations
+ - Removed runtime array temporary creation during flatConvolve_fast 
+ - Changed default PSF_maxAngle_degrees, 4deg --> 7.5deg
+
+v0.5
+----------------------
+Public release
+ - Added automatic configuration of IRF averaging and
+   PSF FFT pre-computation
+ - Fixed bug in flatUtils causing array bound overrun when
+   requested central energy is equal to one of the extrema 
+   of the allowed energy range
+ - Purged redundant code flatPointing and flatConvolve_full
+ - Small bug fixes, compatibility improvements in contributed packages 
+ - Updated test program
+
+
+v0.4
+----------------------
+Public release
+  - Added P7_V6 IRFs (including PSF code 
+    changes to accomodate new parameterisation)
+
+
+v0.3
+----------------------
+Public release
+  - Various bug fixes and code condensations
+
+
+v0.2
+----------------------
+Initially LAT-restricted, later public release
+  - As per v0.1 plus IRFs P6_v3, P7_v1 
+
+
+v0.1
+----------------------
+Public release
+  - First release
+  - IRF V6_p1 only
+

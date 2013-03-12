@@ -1,0 +1,116 @@
+! Common module for flatlib
+!
+! Pat Scott, Feb 2009; pat@fysik.su.se
+!--------------------------------------------------------------------------------
+
+
+      MODULE flatCommon
+
+      implicit none
+
+      include 'fftw3'
+
+      !Hidden options
+      logical, parameter :: debug_fl = .true.
+      logical, parameter :: wrapPSFConvolution = .false.
+
+      !Internal constants 
+      logical, parameter :: exposure = .false.
+      logical, parameter :: livetime = .true.
+
+      integer, parameter :: back = 1, front = 2, both = 3
+      integer, parameter :: thick = back, thin = front
+      integer, parameter :: DblKingSingleSigma = 1, DblKingDblSigma = 2
+      integer, parameter :: strlen = 150
+      integer, parameter :: splineOrder_logE = 4, splineOrder_costheta = 4
+      integer, parameter :: Simplex = 1, HyperQuad = 2
+      integer, parameter :: Edisp_OversamplingFactor = 50, PSF_OversamplingFactor = 30, &
+                            Aeff_OversamplingFactor = 10
+      integer, parameter :: TransformedPSFCube_nEnergies = 500
+      integer, parameter :: nFastSamples = 40
+      integer, parameter :: PSF_nPhi = 5
+      
+      double precision, parameter :: Edisp_splineTension = 1.d0
+      double precision, parameter :: PSF_splineTension = 0.d0
+      double precision, parameter :: Aeff_splineTension = 1.d0
+      double precision, parameter :: TransformedPSF_splineTension = 1.d0
+      double precision, parameter :: NORM_splineTension = 1.d0
+      double precision, parameter :: Ncore_splineTension = 1.d0
+      double precision, parameter :: Ntail_splineTension = 1.d0
+
+      double precision, parameter :: pi_fl = 3.1415926535897932384626433832795
+      double precision, parameter :: xbpf = 4.4721359549995796d0
+      double precision, parameter :: radperdeg = pi_fl / 180.d0
+      double precision, parameter :: integratorAbsErr = 1.d-100
+      double precision, parameter :: integratorRelErr = 1.d-3
+      double precision, parameter :: local_prec = epsilon(pi_fl)
+      double precision, parameter :: PSF_maxAngle_degrees = 7.5d0
+      double precision, parameter :: PSF_maxAngle = PSF_maxAngle_degrees * radperdeg
+      double precision, parameter :: sigmaFastSamples = 0.8d0
+      
+      !These are the canonical maximum and minimum energies detectable by Fermi, in GeV
+      double precision, parameter :: Fermi_Emin = 0.02d0, Fermi_Emax = 560.d0
+      !...and the maximum and minimum incidence angles relative to the spacecraft zenith
+      double precision, parameter :: Fermi_costhetamin = 0.21d0, Fermi_costhetamax = 1.d0
+      !...and the default max and min azimuthal angle in the detector
+      double precision, parameter :: Fermi_phimin = 0.d0, Fermi_phimax = 2.d0*pi_fl
+
+      !Derived types
+      Type DblPtrArray1D
+        double precision, pointer :: ptr(:)
+      end Type
+      Type DblPtrArray2D
+        double precision, pointer :: ptr(:,:)
+      end Type
+      Type DblPtrArray3D
+        double precision, pointer :: ptr(:,:,:)
+      end Type
+      Type DblComplexPtrArray2D
+        complex(8), pointer :: ptr(:,:)
+      end Type
+      Type IntPtrArray1D
+        integer, pointer :: ptr(:)
+      end Type
+
+      !Start path
+      character (len=strlen), parameter :: flatlib_rootdir = '/home/pat/flatlib/'
+      !End path
+      character (len=strlen), parameter :: flatlib_datadir = trim(flatlib_rootdir) // 'data/'
+      
+      double precision :: Edisp_consts(9,2), PSF_consts(3,2)
+      
+      double precision :: jpsi
+
+      double precision :: little_working(3*max(splineOrder_logE,splineOrder_costheta) + splineOrder_costheta)
+
+      integer :: Aeff_nEnergies, Aeff_nTheta, Oversampled_Aeff_nEnergies
+      integer :: Edisp_nEnergies, Edisp_nTheta, Oversampled_Edisp_nEnergies
+      integer :: PSF_nEnergies, PSF_nTheta, Oversampled_PSF_nEnergies
+      integer :: PSFparameterisation
+      
+      double precision, allocatable :: Aeff_logE(:,:), Aeff_costheta(:,:), Oversampled_Aeff_logE(:,:)
+      double precision, allocatable :: Edisp_logE(:,:), Edisp_costheta(:,:), Oversampled_Edisp_logE(:,:)
+      double precision, allocatable :: PSF_logE(:,:), PSF_costheta(:,:), Oversampled_PSF_logE(:,:)
+      double precision, allocatable :: Oversampled_PSF_unscaledx(:,:)
+
+      double precision, allocatable :: Aeff_lookup(:,:,:), NORM_lookup(:,:,:), xbias_lookup(:,:,:)
+      double precision, allocatable :: LS1_lookup(:,:,:), RS1_lookup(:,:,:), LS2_lookup(:,:,:), RS2_lookup(:,:,:)
+      double precision, allocatable :: Ncore_lookup(:,:,:), Ntail_lookup(:,:,:), sigma_lookup(:,:,:) 
+      double precision, allocatable :: sigmatail_lookup(:,:,:), gammacore_lookup(:,:,:), gammatail_lookup(:,:,:)
+      double precision, allocatable :: mean_Aeff_lookup(:,:), mean_PSF_lookup(:,:,:), mean_Edisp_lookup(:,:,:)
+      
+      double precision, allocatable :: Aeff_knots_logE(:,:), Aeff_knots_costheta(:,:)
+      double precision, allocatable :: xbias_knots_logE(:,:), xbias_knots_costheta(:,:)
+      double precision, allocatable :: LS1_knots_logE(:,:), LS1_knots_costheta(:,:)
+      double precision, allocatable :: RS1_knots_logE(:,:), RS1_knots_costheta(:,:)
+      double precision, allocatable :: LS2_knots_logE(:,:), LS2_knots_costheta(:,:)
+      double precision, allocatable :: RS2_knots_logE(:,:), RS2_knots_costheta(:,:)
+      double precision, allocatable :: sigma_knots_logE(:,:), sigma_knots_costheta(:,:)
+      double precision, allocatable :: sigmatail_knots_logE(:,:), sigmatail_knots_costheta(:,:)
+      double precision, allocatable :: gammacore_knots_logE(:,:), gammacore_knots_costheta(:,:)
+      double precision, allocatable :: gammatail_knots_logE(:,:), gammatail_knots_costheta(:,:)
+
+      double precision, allocatable :: mean_Edisp_zp(:,:), mean_PSF_zp(:,:), mean_Aeff_zp(:,:)
+      double precision, allocatable :: NORM_zp(:,:), Ncore_zp(:,:), Ntail_zp(:,:)
+      
+      END MODULE flatCommon
