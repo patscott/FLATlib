@@ -1,4 +1,4 @@
-Readme for FLATlib v0.5
+Readme for FLATlib v0.7
 --------------------------
 
 FLATlib is a Fortran90 library for performing fast convolution of
@@ -38,3 +38,4 @@ Pat Scott  	July 7 2009
 Updated 	Feb 21 2011
 		Oct 20 2011
 		Apr 12 2012
+                Mar 12 2013
