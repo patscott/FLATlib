@@ -167,37 +167,15 @@
 
         call dfftw_execute_dft_r2c(plan_source(ROI), UntransformedSource(ROI)%ptr, TransformedSource(ROI)%ptr)
 
-        if (debug) then
-           write(*,*) 'Sizes = ', source_FFTsize_RA(ROI), source_FFTsize_DEC(ROI)
-           do i=20,25
-              write(*, '(10E15.5)') TransformedSource(ROI)%ptr(i, 20:25)
-           end do
-        end if
-
         UntransformedInverse(ROI)%ptr = TransformedSource(ROI)%ptr * cmplx(flatFFTW_TransformedPSF(ROI,logE_true)) 
 
-       if (debug) then
-          write(*,*) 'Untransn'
-          do i=20,25
-             write(*, '(10E15.5)') UntransformedInverse(ROI)%ptr(i, 20:25)
-          end do
-       end if
         call dfftw_execute_dft_c2r(plan_inverse(ROI), UntransformedInverse(ROI)%ptr, TransformedInverse(ROI)%ptr)
-
-
-       if (debug) then
-          write(*,*) 'Trsf inverse, size', size(UntransformedInverse(ROI)%ptr,1),  size(UntransformedInverse(ROI)%ptr,2)
-          do i=20,25
-             write(*, '(10E15.5)') TransformedInverse(ROI)%ptr(i, 20:25)
-          end do
-       end if
 
         if (PointingType_share .eq. livetime) TransformedInverse(ROI)%ptr = TransformedInverse(ROI)%ptr * flatIRFs_Aeff_mean(logE_true, both)
         temp_Integrand(k,:,:) = TransformedInverse(ROI)%ptr(:source_FFTsize_RA(ROI),:source_FFTsize_DEC(ROI)) * Edisps_scaled(k) / &
                                 (dble(source_FFTsize_RA(ROI) + padding_RA(ROI)) * dble(source_FFTsize_DEC(ROI) + padding_DEC(ROI)))
       enddo
     
-
       getIntegral = 0.d0
       do i=1,nFastSamples-1
         getIntegral = getIntegral + 0.5d0 * (fastSamples(e,i+1) - fastSamples(e,i)) * &
