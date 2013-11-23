@@ -171,7 +171,7 @@
 
         call dfftw_execute_dft_c2r(plan_inverse(ROI), UntransformedInverse(ROI)%ptr, TransformedInverse(ROI)%ptr)
 
-        if (PointingType_share .eq. livetime) TransformedInverse(ROI)%ptr = TransformedInverse(ROI)%ptr * flatIRFs_Aeff_mean(logE_true, both)
+        if (PointingType_share .eqv. livetime) TransformedInverse(ROI)%ptr = TransformedInverse(ROI)%ptr * flatIRFs_Aeff_mean(logE_true, both)
         temp_Integrand(k,:,:) = TransformedInverse(ROI)%ptr(:source_FFTsize_RA(ROI),:source_FFTsize_DEC(ROI)) * Edisps_scaled(k) / &
                                 (dble(source_FFTsize_RA(ROI) + padding_RA(ROI)) * dble(source_FFTsize_DEC(ROI) + padding_DEC(ROI)))
       enddo
