@@ -19,7 +19,7 @@
       contains
 
     
-      DOUBLE PRECISION RECURSIVE FUNCTION flatIRFs_Aeff(l10E_true, IncidenceAngles_true, strip)
+      RECURSIVE FUNCTION flatIRFs_Aeff(l10E_true, IncidenceAngles_true, strip) RESULT (Aeff)
       ! Returns the effective area as a function of true photon energy and incidence angles, either
       ! in total or for the thick or thin detector strips individually.
       !
@@ -32,7 +32,6 @@
   
       double precision, intent(IN) :: l10E_true, IncidenceAngles_true(2)
       integer, intent(IN) :: strip
-
       double precision :: costheta_true, phi_true
       double precision :: Aeff, DB2VAL
       external DB2VAL
@@ -40,8 +39,8 @@
 
       if (strip .eq. both) then
 
-        flatIRFs_Aeff = flatIRFs_Aeff(l10E_true, IncidenceAngles_true, thick) + &
-                        flatIRFs_Aeff(l10E_true, IncidenceAngles_true, thin)
+        Aeff = flatIRFs_Aeff(l10E_true, IncidenceAngles_true, thick) + &
+               flatIRFs_Aeff(l10E_true, IncidenceAngles_true, thin)
         return
 
       elseif (strip .ne. front .and. strip .ne. back) then
@@ -57,18 +56,12 @@
              Aeff_nEnergies,Aeff_nTheta,splineOrder_logE,splineOrder_costheta,&
              Aeff_lookup(:,:,strip),little_working)
       
-      if (Aeff > local_prec) then
-        flatIRFs_Aeff = Aeff
-      else
-        flatIRFs_Aeff = 0.d0
-      endif
-
-      return
+      if (Aeff .le. local_prec) Aeff = 0.d0
 
       END FUNCTION flatIRFs_Aeff
 
 
-      DOUBLE PRECISION RECURSIVE FUNCTION flatIRFs_Aeff_mean(l10E, strip)
+      RECURSIVE FUNCTION flatIRFs_Aeff_mean(l10E, strip) RESULT (Aeff)
       ! Returns the effective area as a function of true photon energy only, ie averaged over incidence angles in
       ! the detector.  Can be used to calculate either the total effective area or the partial areas coming from the
       ! thick or thin detector strips.
@@ -80,14 +73,13 @@
   
       double precision, intent(IN) :: l10E
       integer, intent(IN) :: strip
-
       double precision :: Aeff, curv2
       external curv2
 
       if (strip .eq. both) then
 
-        flatIRFs_Aeff_mean = flatIRFs_Aeff_mean(l10E, thick) + &
-                             flatIRFs_Aeff_mean(l10E, thin)
+        Aeff = flatIRFs_Aeff_mean(l10E, thick) + &
+               flatIRFs_Aeff_mean(l10E, thin)
         return
 
       elseif (strip .ne. front .and. strip .ne. back) then
@@ -99,16 +91,12 @@
       Aeff = curv2(l10E+3.d0,Oversampled_Aeff_nEnergies,Oversampled_Aeff_logE(:,strip),&
                    mean_Aeff_lookup(:,strip),mean_Aeff_zp(:,strip),Aeff_splineTension)
       
-      if (Aeff > local_prec) then
-        flatIRFs_Aeff_mean = Aeff
-      else
-        flatIRFs_Aeff_mean = 0.d0
-      endif
+      if (Aeff .le. local_prec) Aeff = 0.d0
 
       END FUNCTION flatIRFs_Aeff_mean
 
 
-      DOUBLE PRECISION RECURSIVE FUNCTION flatIRFs_Edisp(l10E_obs, l10E_true, IncidenceAngles_true, strip)
+      RECURSIVE FUNCTION flatIRFs_Edisp(l10E_obs, l10E_true, IncidenceAngles_true, strip) RESULT (Edisp)
       ! Returns the LAT energy dispersion as a function of true and observed photon energies and true 
       ! incidence angles, for either the thick or thin detector strips, or the LAT as a whole.
       !
@@ -122,14 +110,12 @@
   
       double precision, intent(IN) :: l10E_obs, l10E_true, IncidenceAngles_true(2)
       integer, intent(IN) :: strip
-
       double precision :: costheta_true, pars(5), Edisp
 
       if (strip .eq. both) then
 
         Edisp = 0.5d0 * flatIRFs_Edisp(l10E_obs, l10E_true, IncidenceAngles_true, thick) + &
                 0.5d0 * flatIRFs_Edisp(l10E_obs, l10E_true, IncidenceAngles_true, thin)
-        flatIRFs_Edisp = Edisp
         return
 
       elseif (strip .ne. front .and. strip .ne. back) then
@@ -149,13 +135,7 @@
       Edisp = flatIRFs_Edisp_rawfunc(l10E_obs, l10E_true, costheta_true, pars, strip) * &
               flatIRFparams_NORM(costheta_true, l10E_true, strip)
 
-      if (Edisp > local_prec) then
-        flatIRFs_Edisp = Edisp
-      else
-        flatIRFs_Edisp = 0.d0
-      endif
-
-      return
+      if (Edisp .le. local_prec) Edisp = 0.d0
 
       END FUNCTION flatIRFs_Edisp
 
@@ -166,7 +146,6 @@
   
       double precision, intent(IN) :: l10E_obs, l10E_true, costheta_true, pars(5)
       integer, intent(IN) :: strip
-
       double precision :: x, scaleFactor, l10E_true_MeV, xminusxb, S1, S2
       double precision :: xbias, LS1, LS2, RS1, RS2
 
@@ -204,26 +183,21 @@
 
       endif
 
-      return
-
       END FUNCTION flatIRFs_Edisp_rawfunc
 
 
-      DOUBLE PRECISION RECURSIVE FUNCTION flatIRFs_Edisp_mean(l10E_obs, l10E_true, strip)
+      RECURSIVE FUNCTION flatIRFs_Edisp_mean(l10E_obs, l10E_true, strip) RESULT (Edisp)
       ! Input:    
       ! Output:   
   
       double precision, intent(IN) :: l10E_obs, l10E_true
       integer, intent(IN) :: strip
-
-      double precision :: mean_Edisp
       double precision :: Edisp
 
       if (strip .eq. both) then
 
-        mean_Edisp = 0.5d0 * flatIRFs_Edisp_mean(l10E_obs, l10E_true, thick) + &
-                     0.5d0 * flatIRFs_Edisp_mean(l10E_obs, l10E_true, thin)
-        flatIRFs_Edisp_mean = mean_Edisp
+        Edisp = 0.5d0 * flatIRFs_Edisp_mean(l10E_obs, l10E_true, thick) + &
+                0.5d0 * flatIRFs_Edisp_mean(l10E_obs, l10E_true, thin)
         return
 
       elseif (strip .ne. front .and. strip .ne. back) then
@@ -236,31 +210,23 @@
                     Oversampled_Edisp_logE(:,strip),Oversampled_Edisp_logE(:,strip),mean_Edisp_lookup(:,:,strip),&
                     Oversampled_Edisp_nEnergies,mean_Edisp_zp(:,strip),Edisp_splineTension)
        
-      if (Edisp > local_prec) then
-         flatIRFs_Edisp_mean = Edisp
-      else
-        flatIRFs_Edisp_mean = 0.d0
-      endif
-
-      return
+      if (Edisp .le. local_prec) Edisp = 0.d0
 
       END FUNCTION flatIRFs_Edisp_mean
 
 
-      DOUBLE PRECISION RECURSIVE FUNCTION flatIRFs_PSF(IncidenceAngles_obs, l10E_true, IncidenceAngles_true, strip)
+      RECURSIVE FUNCTION flatIRFs_PSF(IncidenceAngles_obs, l10E_true, IncidenceAngles_true, strip) RESULT (PSF) 
       ! Input:    
       ! Output:   
 
       double precision, intent(IN) :: l10E_true, IncidenceAngles_obs(2), IncidenceAngles_true(2)
       integer, intent(IN) :: strip
-
       double precision :: PSF, pars(5), costheta_true
 
       if (strip .eq. both) then
 
         PSF = 0.5d0 * flatIRFs_PSF(IncidenceAngles_obs, l10E_true, IncidenceAngles_true, thick) + &
               0.5d0 * flatIRFs_PSF(IncidenceAngles_obs, l10E_true, IncidenceAngles_true, thin)
-        flatIRFs_PSF = PSF
         return
 
       elseif (strip .ne. back .and. strip .ne. front) then
@@ -292,13 +258,7 @@
       PSF = flatIRFparams_Ncore(costheta_true, l10E_true, strip) * &
             flatIRFs_PSF_rawfunc(IncidenceAngles_obs, l10E_true, IncidenceAngles_true, pars, strip)
       
-      if (PSF > local_prec) then
-        flatIRFs_PSF = PSF
-      else
-        flatIRFs_PSF = 0.d0
-      endif
-
-      return
+      if (PSF .le. local_prec) PSF = 0.d0
 
       END FUNCTION flatIRFs_PSF
 
@@ -371,20 +331,18 @@
       END FUNCTION flatIRFs_PSFbase
 
 
-      DOUBLE PRECISION RECURSIVE FUNCTION flatIRFs_PSF_mean(Direction, l10E, strip)
+      RECURSIVE FUNCTION flatIRFs_PSF_mean(Direction, l10E, strip) RESULT (PSF)
       ! Input:    
       ! Output:   
 
       double precision, intent(IN) :: Direction(2), l10E
       integer, intent(IN) :: strip
-
       double precision :: theta, unscaledx, PSF
 
       if (strip .eq. both) then
 
         PSF = 0.5d0 * flatIRFs_PSF_mean(Direction, l10E, thick) + &
               0.5d0 * flatIRFs_PSF_mean(Direction, l10E, thin)
-        flatIRFs_PSF_mean = PSF
         return
 
       elseif (strip .ne. back .and. strip .ne. front) then
@@ -400,13 +358,7 @@
                   Oversampled_PSF_logE(:,strip),Oversampled_PSF_unscaledx(:,strip),mean_PSF_lookup(:,:,strip),&
                   Oversampled_PSF_nEnergies,mean_PSF_zp(:,strip),PSF_splineTension)
 
-      if (PSF > local_prec) then
-        flatIRFs_PSF_mean = PSF
-      else
-        flatIRFs_PSF_mean = 0.d0
-      endif
-      
-      return
+      if (PSF .le. local_prec) PSF = 0.d0
 
       END FUNCTION flatIRFs_PSF_mean
 
