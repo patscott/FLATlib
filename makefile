@@ -92,11 +92,11 @@ $(SRC)/flatCommon.f90: $(SRC)/flatCommon.f90.template
 
 $(BUILD)/%.o: $(SRC)/%.f90 $(COMMONOBJ_BARE:%.o=$(SRC)/%.f90)
 	cd $(BUILD); \
-	$(FC) -c $(FCFLAGS) -I$(CONTRIB)/CUBPACK/build/Core $<
+	$(FC) -c -o $@ $(FCFLAGS) -I$(CONTRIB)/CUBPACK/build/Core $<
 
 $(BUILD)/%.o: $(SRC)/%.f $(COMMONOBJ_BARE:%.o=$(SRC)/%.f90)
 	cd $(BUILD); \
-	$(FC) -c $(FCFLAGS) -I$(CONTRIB)/CUBPACK/build/Core $<
+	$(FC) -c -o $@ $(FCFLAGS) -I$(CONTRIB)/CUBPACK/build/Core $<
 
 clean:
 	rm -f $(BUILD)/*
