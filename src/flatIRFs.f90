@@ -269,10 +269,8 @@
 
       double precision, intent(IN) :: l10E_true, IncidenceAngles_obs(2), IncidenceAngles_true(2), pars(5)
       integer, intent(IN) :: strip
-
       double precision :: costheta_obs, phi_obs
       double precision :: costheta_true, phi_true
-
       double precision :: x, PSF, scaleFactorSq, Ntail, sigma, sigmatail, gammacore, gammatail, theta_obs, theta_true
 
       scaleFactorsq = PSF_consts(1,strip)*PSF_consts(1,strip) * 10.d0**(-1.6d0 * (l10E_true + 1.d0)) &
@@ -310,6 +308,10 @@
           PSF = flatIRFs_PSFbase(x, sigma, gammacore)
           if (abs(gammatail - 1.d0) .gt. local_prec .and. abs(Ntail) .gt. local_prec) &
             PSF = PSF + Ntail*flatIRFs_PSFbase(x, sigmatail, gammatail)
+
+        case default
+
+          call flatUtils_crash('Unrecognised PSF parameterisation.')
 
       end select
 

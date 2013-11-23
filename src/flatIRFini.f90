@@ -197,7 +197,7 @@
         if (record .ne. detnam(strip)) call flatUtils_crash('Incorrect DETNAM header entry in energy dispersion FITS file.')
 
         ! Read the data dimensions      
-	call fteqty(unit,1,datacode,Edisp_nEnergies_raw,datawidth,fstatus)
+        call fteqty(unit,1,datacode,Edisp_nEnergies_raw,datawidth,fstatus)
         call fteqty(unit,3,datacode,Edisp_nTheta_raw,datawidth,fstatus)
         Edisp_nEnergies = Edisp_nEnergies_raw + 2
         Edisp_nTheta = Edisp_nTheta_raw + 2
@@ -422,7 +422,7 @@
         end select
 
         ! Read the data dimensions      
-	call fteqty(unit,1,datacode,PSF_nEnergies_raw,datawidth,fstatus)
+        call fteqty(unit,1,datacode,PSF_nEnergies_raw,datawidth,fstatus)
         call fteqty(unit,3,datacode,PSF_nTheta_raw,datawidth,fstatus)
         PSF_nEnergies = PSF_nEnergies_raw + 2
         PSF_nTheta = PSF_nTheta_raw + 2
@@ -661,7 +661,7 @@
         if (record .ne. detnam(strip)) call flatUtils_crash('Incorrect DETNAM header entry in effective area FITS file.')
 
         ! Read the data dimensions      
-	call fteqty(unit,1,datacode,Aeff_nEnergies_raw,datawidth,fstatus)
+        call fteqty(unit,1,datacode,Aeff_nEnergies_raw,datawidth,fstatus)
         call fteqty(unit,3,datacode,Aeff_nTheta_raw,datawidth,fstatus)
         Aeff_nEnergies = Aeff_nEnergies_raw + 2
         Aeff_nTheta = Aeff_nTheta_raw + 2

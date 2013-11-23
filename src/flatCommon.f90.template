@@ -8,7 +8,7 @@
 
       implicit none
 
-      include 'fftw3'
+      include 'fftw3.f'
 
       !Hidden options
       logical, parameter :: debug_fl = .true.
