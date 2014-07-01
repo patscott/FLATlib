@@ -73,8 +73,8 @@
   
       double precision, intent(IN) :: l10E
       integer, intent(IN) :: strip
-      double precision :: Aeff, curv2
-      external curv2
+      double precision :: Aeff, Aeff_temp(1), l10Ep3(1)
+      integer :: ierr
 
       if (strip .eq. both) then
 
@@ -88,9 +88,12 @@
 
       endif
 
-      Aeff = curv2(l10E+3.d0,Oversampled_Aeff_nEnergies,Oversampled_Aeff_logE(:,strip),&
-                   mean_Aeff_lookup(:,strip),mean_Aeff_zp(:,strip),Aeff_splineTension)
-      
+      l10Ep3(1) = l10E + 3.d0
+      call TSVAL1(Oversampled_Aeff_nEnergies, Oversampled_Aeff_logE(:,strip), mean_Aeff_lookup(:,strip), &
+           mean_Aeff_zp(:,strip), mean_Aeff_sigma(:,strip), 0, 1, l10Ep3, Aeff_temp, ierr)
+      if (ierr .lt. 0) call flatUtils_crash('TSVAL1(TSPACK) returned error in mean Aeff routine.')
+      Aeff = Aeff_temp(1)
+
       if (Aeff .le. local_prec) Aeff = 0.d0
 
       END FUNCTION flatIRFs_Aeff_mean

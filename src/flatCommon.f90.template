@@ -110,7 +110,7 @@
       double precision, allocatable :: gammacore_knots_logE(:,:), gammacore_knots_costheta(:,:)
       double precision, allocatable :: gammatail_knots_logE(:,:), gammatail_knots_costheta(:,:)
 
-      double precision, allocatable :: mean_Edisp_zp(:,:), mean_PSF_zp(:,:), mean_Aeff_zp(:,:)
+      double precision, allocatable :: mean_Edisp_zp(:,:), mean_PSF_zp(:,:), mean_Aeff_zp(:,:), mean_Aeff_sigma(:,:)
       double precision, allocatable :: NORM_zp(:,:), Ncore_zp(:,:), Ntail_zp(:,:)
       
       END MODULE flatCommon

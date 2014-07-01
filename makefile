@@ -1,4 +1,4 @@
-# Makefile for flatlib v0.6
+# Makefile for flatlib v0.8
 #
 # Note that flatlib requires
 # the cfitsio, fftw3 and m
@@ -35,6 +35,12 @@ CUBPACKDIR = $(CONTRIB)/CUBPACK
 FITPACKDIR = $(CONTRIB)/FITPACK
 CMLIBDIR = $(CONTRIB)/CMLIB
 NSWCDIR = $(CONTRIB)/NSWC
+TSPACKDIR = $(CONTRIB)/TSPACK
+
+TSPACK_SOURCES = ENDSLP.f SIGS.f SNHCSH.f STORE.f \
+YPCOEF.f YPC1.f YPC1P.f YPC2.f YPC2P.f TSPSI.f \
+INTRVL.f HVAL.f HPVAL.f TSINTL.f HPPVAL.f TSVAL1.f
+TSPACK_FULL_SOURCES = $(patsubst %.f,$(TSPACKDIR)/%.f,$(TSPACK_SOURCES))
 
 COMMONOBJ_BARE = flatCommon.o
 
@@ -46,15 +52,15 @@ TESTOBJ_BARE = flatTest.o
 AVEROBJ_BARE = flatAverage.o
 
 COMMONOBJ = $(COMMONOBJ_BARE:%.o=$(BUILD)/%.o)
-OBJ = $(OBJ_BARE:%.o=$(BUILD)/%.o)
+OBJ = $(BUILD)/tspack.o $(OBJ_BARE:%.o=$(BUILD)/%.o)
 TESTOBJ = $(TESTOBJ_BARE:%.o=$(BUILD)/%.o)
 AVEROBJ = $(AVEROBJ_BARE:%.o=$(BUILD)/%.o)
 
 
 all: flattest flataverage
 
-flatlib: cmlib cubpack fitpack nswc common $(OBJ) 
-	$(AR) $(ARFLAGS) $(LIB)/libflatlib.a $(COMMONOBJ) $(OBJ)
+flatlib: cmlib cubpack fitpack nswc tspack common $(OBJ) 
+	$(AR) $(ARFLAGS) $(LIB)/libflatlib.a $(COMMONOBJ) $(OBJ) 
 	cd $(LIB); $(AR) x libcmlib.a; $(AR) x libcubpack.a; $(AR) x libfitpack.a; $(AR) x libnswc.a
 	$(AR) $(ARFLAGS) $(LIB)/libflatlib.a $(LIB)/*.o
 	rm -f $(LIB)/*.o
@@ -74,6 +80,12 @@ fitpack:
 
 nswc:
 	cd $(NSWCDIR); $(MAKE) nswc
+
+tspack: $(BUILD)/tspack.o
+	rm $(SRC)/tspack.f
+
+$(SRC)/tspack.f : $(TSPACK_FULL_SOURCES)
+	cat $(TSPACK_FULL_SOURCES) > $(SRC)/tspack.f
 
 flattest: flatlib $(TESTOBJ)
 	$(FC) $(FCFLAGS) -L$(LIB) -I$(BUILD) -o $(FLAT_ROOT)/flattest \
@@ -105,6 +117,7 @@ clean:
 	rm -f $(DATA)/flataverage
 	rm -f flattest
 	rm -f $(SRC)/flatCommon.f90
+	rm -f $(SRC)/tspack.f
 	cd $(CUBPACKDIR); $(MAKE) clean
 	cd $(CMLIBDIR); $(MAKE) clean
 	cd $(FITPACKDIR); $(MAKE) clean

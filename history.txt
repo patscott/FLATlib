@@ -1,3 +1,10 @@
+v0.8
+----------------------
+Public release
+ - Added TSPACK contributed package.
+ - Replaced curv calls from FITPACK with calls to TSPACK.
+ - Fixed effective area strip-related initialisation bug.
+
 v0.7
 ----------------------
 Public release

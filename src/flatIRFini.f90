@@ -840,7 +840,6 @@
       logical, intent(IN) :: balkIfMissing
       integer :: ierr, fileunit
       double precision, allocatable :: temp(:)
-      double precision :: mean_Aeff_edge_derivatives(2)
       character (len=strlen) :: infilename   
 
       ierr=0
@@ -864,22 +863,20 @@
       allocate(Oversampled_Aeff_logE(Oversampled_Aeff_nEnergies,2))
       allocate(mean_Aeff_lookup(Oversampled_Aeff_nEnergies,2))
       allocate(mean_Aeff_zp(Oversampled_Aeff_nEnergies,2))
-      allocate(temp(3*Oversampled_Aeff_nEnergies))
+      allocate(mean_Aeff_sigma(Oversampled_Aeff_nEnergies,2))
+      allocate(temp(2*Oversampled_Aeff_nEnergies-2))
     
       read(fileunit, '(ES13.6)') Oversampled_Aeff_logE
       read(fileunit, '(ES13.6)') mean_Aeff_lookup
 
       close(fileunit)    
 
-      mean_Aeff_edge_derivatives = 0.d0
-
       do strip=front,back,back-front
 
         !Initialise interpolator
-        call curv1(Oversampled_Aeff_nEnergies,Oversampled_Aeff_logE,mean_Aeff_lookup,&
-                   mean_Aeff_edge_derivatives(1),mean_Aeff_edge_derivatives(2),3,mean_Aeff_zp,temp,&
-                   Aeff_splineTension,ierr)
-        if (ierr .ne. 0) call flatUtils_crash('curv1(FITPACK) returned error in mean Aeff initialisation routine.')
+        call TSPSI(Oversampled_Aeff_nEnergies,Oversampled_Aeff_logE(:,strip),mean_Aeff_lookup(:,strip),2,0,.false.,.false., &
+             2*Oversampled_Aeff_nEnergies-2,temp,mean_Aeff_zp(:,strip),mean_Aeff_sigma(:,strip),ierr)
+        if (ierr .lt. 0) call flatUtils_crash('TSPSI(TSPACK) returned error in mean Aeff initialisation routine.')
 
       enddo
 
