@@ -32,7 +32,6 @@
       
       double precision, parameter :: Edisp_splineTension = 1.d0
       double precision, parameter :: PSF_splineTension = 0.d0
-      double precision, parameter :: Aeff_splineTension = 1.d0
       double precision, parameter :: TransformedPSF_splineTension = 1.d0
       double precision, parameter :: NORM_splineTension = 1.d0
       double precision, parameter :: Ncore_splineTension = 1.d0
